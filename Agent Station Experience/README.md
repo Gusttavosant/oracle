@@ -3,7 +3,8 @@ Criando seu próprio agente e habilitando ele para conversar com você na palma 
 
 ## Arquivo para usar
 
-- `openclaw-terraform.zip`
+- `openclaw-terraform-E5.zip` (Preferência, sobe uma VM E5)
+- `openclaw-terraform.zip` (Sobe uma VM A1, as vezes sem disponibilidade, mas é Always-free)
 
 ## Variáveis
 
