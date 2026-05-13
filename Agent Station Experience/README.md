@@ -1,8 +1,9 @@
-# OpenClaw Standalone on OCI via Terraform
+# OpenClaw on OCI via Terraform
+Criando seu próprio agente e habilitando ele para conversar com você na palma da sua mão, em minutos.
 
 ## Arquivo para usar
 
-- `novo-v6.zip`
+- `openclaw-terraform.zip`
 
 ## Variáveis
 
@@ -13,6 +14,8 @@
 
 ## 1. Criar o bot no Telegram
 
+Intale o Telegram no seu celular e crie uma conta com seu numero. Uma vez que tiver a conta criada, siga os passos:
+
 1. Abra o Telegram.
 2. Procure por `@BotFather`.
 3. Envie `/start`.
@@ -22,10 +25,8 @@
 7. Copie o token retornado.
 8. Use esse valor em `telegram_bot_token`.
 
-```md
-<!-- SCREENSHOT: telegram-botfather-create-bot -->
-<!-- Cole aqui a imagem do BotFather criando o bot -->
-```
+<img width="1838" height="813" alt="image" src="https://github.com/user-attachments/assets/d9ec5059-155a-426b-8bc3-234d11618a4f" />
+
 
 ## 2. Descobrir o `chat_id`
 
@@ -37,19 +38,17 @@
 ```text
 https://api.telegram.org/botSEU_TOKEN/getUpdates
 ```
+<img width="1657" height="1020" alt="image" src="https://github.com/user-attachments/assets/3a9f454c-8a11-4d1f-9d1b-8d0e3b501b4e" />
 
 5. Procure por:
 
 ```json
 message.chat.id
 ```
+<img width="1258" height="158" alt="image" src="https://github.com/user-attachments/assets/85cef3de-c841-4886-b9dd-ff22d4cd0926" />
+
 
 6. Use esse valor em `telegram_chat_id`.
-
-```md
-<!-- SCREENSHOT: telegram-chat-id -->
-<!-- Cole aqui a imagem mostrando como localizar o chat_id -->
-```
 
 ## 3. Separar os 4 valores
 
@@ -59,6 +58,11 @@ api_key            = sk-...
 telegram_bot_token = 123456789:ABC...
 telegram_chat_id   = 123456789
 ```
+Buscar compartment_id no seu ambiente trial:
+<img width="1892" height="865" alt="image" src="https://github.com/user-attachments/assets/56b3f258-3ed2-4550-8161-92340f22c04a" />
+
+Criar uma API key no seu ambiente:
+<img width="2642" height="1021" alt="image" src="https://github.com/user-attachments/assets/0050854a-75e0-41b8-8c33-4e659ebc6e37" />
 
 ## 4. Criar a Stack na OCI
 
@@ -72,15 +76,7 @@ telegram_chat_id   = 123456789
 8. Escolha o compartment.
 9. Dê um nome para a stack.
 
-```md
-<!-- SCREENSHOT: oci-stack-create-start -->
-<!-- Cole aqui o print da tela inicial de criação da Stack -->
-```
-
-```md
-<!-- SCREENSHOT: oci-stack-upload-zip -->
-<!-- Cole aqui o print do upload do arquivo ZIP -->
-```
+<img width="1906" height="1020" alt="image" src="https://github.com/user-attachments/assets/ed8177d6-112e-470f-8662-229fdd768845" />
 
 ## 5. Preencher as variáveis
 
@@ -91,18 +87,21 @@ Preencha:
 - `telegram_bot_token`
 - `telegram_chat_id`
 
-```md
-<!-- SCREENSHOT: oci-stack-variables -->
-<!-- Cole aqui o print da tela de variáveis da Stack -->
-```
+<img width="1897" height="1027" alt="image" src="https://github.com/user-attachments/assets/d3388305-0153-4d8e-8a48-4737982d5e4b" />
 
-## 6. Rodar o Plan
+## 6. Rodar o Apply
 
-1. Abra a Stack.
-2. Clique em `Plan`.
-3. Aguarde terminar.
+1. Ainda na Stack.
+2. Marque `Run apply`.
+3. E clique para criar.
 
-Recursos principais:
+<img width="1910" height="1035" alt="image" src="https://github.com/user-attachments/assets/7580d4a1-d47d-4916-b4a6-6dd3945f4b4e" />
+
+Aguarde até a configuração completar, esse processo pode demorar em torno de 5 minutos para concluir:
+<img width="1050" height="311" alt="image" src="https://github.com/user-attachments/assets/8454a2be-821f-4ec0-a482-982e91f6c0f1" />
+<img width="1125" height="415" alt="image" src="https://github.com/user-attachments/assets/1897ecb2-2a81-4032-a879-b9132c77837b" />
+
+Recursos criados:
 
 - `openclaw-standalone`
 - `openclaw-standalone-vcn`
@@ -112,109 +111,7 @@ Recursos principais:
 - `openclaw-standalone-igw`
 - `tls_private_key.ssh`
 
-```md
-<!-- SCREENSHOT: oci-stack-plan -->
-<!-- Cole aqui o print do resultado do Plan -->
-```
-
-## 7. Rodar o Apply
-
-1. Clique em `Apply`.
-2. Aguarde terminar.
-
-```md
-<!-- SCREENSHOT: oci-stack-apply -->
-<!-- Cole aqui o print da execução do Apply -->
-```
-
-## 8. Abrir os Outputs
-
-Depois do `Apply`, abra `Outputs`.
-
-Os mais importantes:
-
-- `public_ip`
-- `ssh_command`
-- `ssh_private_key_pem`
-- `dashboard_host`
-- `dashboard_url_file`
-- `dashboard_token_file`
-- `bootstrap_progress_file`
-- `bootstrap_status_file`
-- `bootstrap_error_file`
-- `bootstrap_log_file`
-- `cloud_init_output_file`
-- `postchecks_log_file`
-
-```md
-<!-- SCREENSHOT: oci-stack-outputs -->
-<!-- Cole aqui o print da tela de Outputs -->
-```
-
-## 9. Salvar a chave SSH
-
-Copie o valor de `ssh_private_key_pem` e salve como:
-
-```text
-generated_ssh_key.pem
-```
-
-Depois:
-
-```bash
-chmod 600 generated_ssh_key.pem
-```
-
-## 10. Acessar a VM
-
-Use o output `ssh_command`.
-
-Ou:
-
-```bash
-ssh -i generated_ssh_key.pem opc@SEU_IP_PUBLICO
-```
-
-## 11. Acompanhar o bootstrap
-
-```bash
-cat /home/opc/openclaw-bootstrap-progress.txt
-```
-
-```bash
-cat /home/opc/openclaw-bootstrap-status.txt
-```
-
-```bash
-cat /home/opc/openclaw-bootstrap-error.txt
-```
-
-```bash
-sudo tail -n 200 /var/log/openclaw-bootstrap.log
-```
-
-```bash
-sudo tail -n 200 /var/log/openclaw-postchecks.log
-```
-
-```bash
-sudo tail -n 200 /var/log/cloud-init-output.log
-```
-
-## 12. Ver se o OpenClaw está saudável
-
-```bash
-source /home/opc/.openclaw/openclaw.env
-"$OPENCLAW_BIN" health --json
-```
-
-Esperado:
-
-- `"ok": true`
-- Telegram com `running: true`
-- Telegram com `connected: true`
-
-## 13. Abrir a interface
+## 7. Abrir a interface
 
 URL base:
 
@@ -222,61 +119,13 @@ URL base:
 http://IP_PUBLICO:18789
 ```
 
-Token:
+Você encontra essas informações em output, assim que seu job estiver com status `Succeeded`:
+<img width="1898" height="1020" alt="image" src="https://github.com/user-attachments/assets/b4f4576a-2971-47b7-81c5-72617aa67cac" />
 
-```text
-/home/opc/openclaw-dashboard-token.txt
-```
+## 8. Testar no Telegram
 
-URL pronta com token:
-
-```text
-/home/opc/openclaw-dashboard-url.txt
-```
-
-```md
-<!-- SCREENSHOT: openclaw-dashboard-login -->
-<!-- Cole aqui o print da primeira tela do OpenClaw -->
-```
-
-## 14. Testar no Telegram
-
-1. Abra a conversa com o bot.
+1. Nesse momento o OpenClaw já deve enviar uma primeira mensagem para o seu chat no Telegram.
 2. Envie `oi`.
 3. Aguarde a resposta.
 
-## 15. Se não responder
-
-```bash
-cat /home/opc/openclaw-bootstrap-error.txt
-```
-
-```bash
-sudo tail -n 200 /var/log/openclaw-bootstrap.log
-```
-
-```bash
-source /home/opc/.openclaw/openclaw.env
-"$OPENCLAW_BIN" health --json
-```
-
-Veja principalmente:
-
-- `telegram.running`
-- `telegram.connected`
-- `telegram.lastError`
-
-## Arquivos úteis na VM
-
-- `/var/log/openclaw-bootstrap.log`
-- `/var/log/openclaw-postchecks.log`
-- `/var/log/cloud-init-output.log`
-- `/home/opc/openclaw-bootstrap-progress.txt`
-- `/home/opc/openclaw-bootstrap-error.txt`
-- `/home/opc/openclaw-bootstrap-status.txt`
-- `/home/opc/openclaw-dashboard-url.txt`
-- `/home/opc/openclaw-dashboard-token.txt`
-- `/home/opc/openclaw-direct-smoke.json`
-- `/home/opc/openclaw-gateway-health.json`
-- `/home/opc/openclaw-model-smoke.json`
-- `/home/opc/openclaw-telegram-smoke.json`
+Agora você já pode utilizar seu agente 24/7 para trabalhar por você, criar rotinas e buscar na web diretamente do seu celular. Ele é capaz de desenvolver código e rodar no próprio ambiente em que foi configurado, então aproveite essa capacidade para criar o que você precisa com mais liberdade e `inteligência`.
