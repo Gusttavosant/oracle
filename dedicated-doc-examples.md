@@ -1,5 +1,13 @@
 # OCI Generative AI — Custom Model via API Key
 
+## Requisito
+
+Dar permissão para o serviço de generative ai para usar API Key como metodo de autenticação. Para isso, vá em Identity > Policy e crie uma nova policy com a seguinte permissão:
+
+```
+allow any-user to use generative-ai-family  in compartment <compartment-name>  where ALL {request.principal.type='generativeaiapikey'}
+```
+
 ## Como criar sua Api Key
 <img width="2642" height="1021" alt="image" src="https://github.com/user-attachments/assets/0050854a-75e0-41b8-8c33-4e659ebc6e37" />
 
