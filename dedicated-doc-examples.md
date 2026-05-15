@@ -26,7 +26,7 @@ print(response.choices[0].message.content)
 ```
 
 ### Curl
-
+```bash
 curl -X POST \
   "https://inference.generativeai.<region>.oci.oraclecloud.com/openai/v1/chat/completions" \
   -H "Authorization: Bearer sk-COLE_A_CHAVE_AQUI" \
@@ -40,3 +40,4 @@ curl -X POST \
       }
     ]
   }'
+```
