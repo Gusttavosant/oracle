@@ -1,5 +1,8 @@
 # OCI Generative AI — Custom Model via API Key
 
+## Como criar sua Api Key
+<img width="2642" height="1021" alt="image" src="https://github.com/user-attachments/assets/0050854a-75e0-41b8-8c33-4e659ebc6e37" />
+
 ## Como chamar um modelo custom/imported em Dedicated AI Cluster usando openai compat
 
 ### Python SDK
