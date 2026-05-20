@@ -30,6 +30,8 @@ Por fim, na parte de credencial da mesma tela, crie uma senha que você consiga 
 - Ter pelo menos uma letra maiúscula e um numero
 - Não pode conter aspas duplas ou simples, nem o nome do usuário
 
+SUGESTÃO SENHA: WORKSHOPsec2019##
+
 Quando a senha estiver correta, clique no botão inferior direito para confirmar as informações e seguir para criação do banco.
 
 <img width="1912" height="990" alt="image-7" src="https://github.com/user-attachments/assets/9c9867c2-aa13-47fe-ae44-3a8a37511a40" />
@@ -55,10 +57,6 @@ Avalie se você está no compartimento correto, assim como no autonomous esse se
 Na tela de criação vamos preencher algumas propriedades abaixo. Primeiro vamos adicionar um nome para o AIDP e um nome para o espaço de trabalho que ele criará internamente, chamado de workspace. Vamos colocar `DeepDiveAIDP` e `DeepDiveWorkspace`.
 
 <img width="1892" height="977" alt="image-14" src="https://github.com/user-attachments/assets/db01d12a-662e-4b65-9446-9c2a7f60f388" />
-
-Descendo a tela, selecione a opção ALH de criar um novo, e adicione uma senha para a plataforma, recomendamos colocar a mesma adicionada no Autonomous anteriormente para facilitar.
-
-<img width="1447" height="558" alt="image-15" src="https://github.com/user-attachments/assets/0d92b281-53e8-4f68-88f6-9f353f161077" />
 
 Para finalizar, vamos selecionar a opção Standard de politicas de segurança e clicar no botão de criação para confirmar a configuração selecionada.
 
@@ -187,6 +185,8 @@ O nome do nosso catalogo vai ser `DeepDiveCatalog_Bronze` e vamos colocar como t
 <img width="1905" height="1026" alt="image-30" src="https://github.com/user-attachments/assets/03d7af96-a415-4f3a-80e7-184ae9704bd9" />
 
 Depois da opção de serviço, você deve preencher a mesma senha do autonomous na caixa de texto da wallet e senha, e deixar o usuário como `admin`. Teste a conexão antes de seguir no botão de criar. Se a conexão estiver correta, siga para criação.
+
+SUGESTÃO SENHA: WORKSHOPsec2019##
 
 <img width="1045" height="548" alt="image-32" src="https://github.com/user-attachments/assets/bf8b6c9a-dd04-41e3-8972-bf173f9f2f06" />
 
