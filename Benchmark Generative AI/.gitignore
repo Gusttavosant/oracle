@@ -1,0 +1,10 @@
+.env
+.venv*
+__pycache__/
+benchmark_run_*/
+genai_bench.log
+*_summary.xlsx
+*.png
+*.csv
+*.md
+!README.md
