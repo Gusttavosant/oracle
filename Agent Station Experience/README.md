@@ -180,26 +180,25 @@ Comece simples. Trate o agente como alguém que acabou de chegar no seu ambiente
 
 Algumas ideias de primeiros pedidos:
 
-- "Me explique o que existe nesta VM e quais comandos eu posso usar com segurança."
-- "Crie um resumo da arquitetura deste ambiente em linguagem simples."
-- "Me ajude a montar uma rotina diária de análise e me lembre do que eu preciso acompanhar."
-- "Pesquise na web sobre um tema e me traga um resumo com próximos passos."
-- "Crie um pequeno script para automatizar uma tarefa repetitiva."
+- "Pesquise concorrentes da minha empresa..."
+- "Me manda todos os dias as 8h as noticias de AI do dia"
 - "Leia os arquivos deste projeto e me diga como melhorar a documentação."
-- "Me ajude a conectar este agente ao Telegram usando um bot token."
+- "Me ajude a conectar este agente ao Telegram usando token."
+- "Ative a conversa por voz, eu quero te mandar audio."
+- "Crie uma página publica com as suas métricas da VM, que tenha consumo de CPU, RAM"
 
 Você também pode pedir coisas mais abertas, como:
 
 ```text
 Quero transformar este agente em um assistente pessoal de operações.
-Me faça perguntas para configurar isso do jeito certo.
+Sempre me responda desse jeito.
 ```
 
 Ou:
 
 ```text
-Quero que você trabalhe comigo pelo Telegram.
-Me guie para criar o bot, receber o token e configurar o canal.
+Quero que você trabalhe comigo pelo WhatsApp.
+Você consegue configurar isso sozinho?
 ```
 
 ### Opcional: Conectar Com Telegram
