@@ -13,7 +13,7 @@ Você sobe uma stack, escolhe `openclaw` ou `hermes`, espera alguns minutos e re
 Use este pacote:
 
 ```text
-openclaw-hermes-oci-principal-v14.zip
+openclaw-hermes-oci.zip
 ```
 
 Ele cria uma VM com `2 OCPU` e `16 GB` de RAM. A stack tenta usar `VM.Standard.E5.Flex` primeiro e, se precisar, tenta `VM.Standard.E6.Flex`.
@@ -34,25 +34,30 @@ Quase tudo que importa fica dentro da sua OCI:
 A única parte pública é a URL que você usa para abrir o agente no navegador. O restante fica organizado dentro da sua tenancy.
 
 ```mermaid
-flowchart TD
-    Pessoa["Pessoa no navegador"]
-    URL["URL do agente"]
-    VM["VM na sua tenancy OCI"]
-    Rede["Rede OCI"]
-    App["OpenClaw ou Hermes"]
-    Proxy["Proxy local OpenAI-compatible"]
-    IAM["Instance principal"]
-    Modelo["OCI Generative AI"]
-    Resposta["Resposta para a pessoa"]
+flowchart LR
+    Pessoa["Pessoa"]
+    Canal["Navegador ou canal externo"]
 
-    Pessoa --> URL
-    URL --> VM
-    VM --> Rede
-    VM --> App
-    App --> Proxy
-    Proxy --> IAM
-    IAM --> Modelo
-    Modelo --> Resposta
+    subgraph OCI["OCI - sua tenancy"]
+        Rede["Rede OCI: VCN, subnet e regras"]
+        VM["VM do agente"]
+        App["OpenClaw ou Hermes"]
+        Proxy["Proxy local OpenAI-compatible"]
+        IAM["Instance principal sem API key"]
+        GenAI["OCI Generative AI OpenAI-compatible"]
+
+        Rede --- VM
+        VM --- App
+        App --- Proxy
+        Proxy --- IAM
+        IAM --- GenAI
+    end
+
+    Pessoa --- Canal
+    Canal --> Rede
+    GenAI --> Proxy
+
+    style OCI fill:#fff7f2,stroke:#c74634,stroke-width:2px
 ```
 
 Em termos práticos:
