@@ -35,10 +35,10 @@ A pessoa conversa por fora, usando a interface web. Se você quiser, depois tamb
 ```mermaid
 flowchart LR
     Web["Interface Web"]
-    Telegram["Telegram opcional"]
+    Telegram["Telegram"]
 
     subgraph OCI["OCI - sua tenancy"]
-        subgraph VM["VM instance E5, E6 ou A1"]
+        subgraph VM["VM instance E5"]
             App["Hermes ou OpenClaw"]
         end
         Model["Enterprise AI Model OpenAI-compatible"]
@@ -49,10 +49,15 @@ flowchart LR
     Web --> VM
     Telegram -.-> VM
 
-    style OCI fill:#fff7f2,stroke:#c74634,stroke-width:2px
-    style VM fill:#ffffff,stroke:#111111,stroke-width:2px
+    class Web,Telegram purpleBox
+    classDef purpleBox fill:#e1d5e7,stroke:#9673a6,stroke-width:2px
+
+    style Telegram stroke-dasharray: 5 5
+
+    style OCI fill:#f3f4f6,stroke:#111111,stroke-width:2px,stroke-dasharray: 5 5
+    style VM fill:#f3f4f6,stroke:#111111,stroke-width:2px
     style App fill:#f3f4f6,stroke:#111111,stroke-width:1px
-    style Model fill:#ffffff,stroke:#111111,stroke-width:2px
+    style Model fill:#f3f4f6,stroke:#111111,stroke-width:2px
 ```
 
 Em termos práticos:
