@@ -1,71 +1,118 @@
-# OpenClaw on OCI via Terraform
-Criando seu próprio agente e habilitando ele para conversar com você na palma da sua mão, em minutos.
+# Seu Agente na OCI com OpenClaw ou Hermes
 
-## Arquivo para usar
+Crie um agente próprio rodando dentro da sua OCI, com uma URL para conversar pelo navegador. A ideia é simples: a infraestrutura fica na sua tenancy, a VM roda o OpenClaw ou o Hermes, e as chamadas ao modelo passam pelo OCI Generative AI usando autenticação da própria instância.
 
-- `openclaw-terraform-E5.zip` (Preferência, sobe uma VM E5)
-- `openclaw-terraform.zip` (Sobe uma VM A1, as vezes sem disponibilidade, mas é Always-free)
+Você não precisa colar API key de modelo, token de Telegram ou chat id. A stack sobe tudo, testa tudo e só termina com `Succeeded` quando o agente estiver pronto de verdade.
 
-## Variáveis
+## Em Uma Frase
 
-- `compartment_id`
-- `api_key`
-- `telegram_bot_token`
-- `telegram_chat_id`
+Você sobe uma stack, escolhe `openclaw` ou `hermes`, espera alguns minutos e recebe uma URL pronta para abrir o seu agente.
 
-## 1. Criar o bot no Telegram
+## Arquivo
 
-Intale o Telegram no seu celular e crie uma conta com seu numero. Uma vez que tiver a conta criada, siga os passos:
-
-1. Abra o Telegram.
-2. Procure por `@BotFather`.
-3. Envie `/start`.
-4. Envie `/newbot`.
-5. Escolha o nome do bot.
-6. Escolha o username do bot.
-7. Copie o token retornado.
-8. Use esse valor em `telegram_bot_token`.
-
-<img width="1838" height="813" alt="image" src="https://github.com/user-attachments/assets/d9ec5059-155a-426b-8bc3-234d11618a4f" />
-
-
-## 2. Descobrir o `chat_id`
-
-1. Abra uma conversa com o bot.
-2. Envie `/start`.
-3. Envie `oi`.
-4. Abra:
+Use este pacote:
 
 ```text
-https://api.telegram.org/botSEU_TOKEN/getUpdates
+openclaw-hermes-oci-principal-v14.zip
 ```
-<img width="1657" height="1020" alt="image" src="https://github.com/user-attachments/assets/3a9f454c-8a11-4d1f-9d1b-8d0e3b501b4e" />
 
-5. Procure por:
+Ele cria uma VM com `2 OCPU` e `16 GB` de RAM. A stack tenta usar `VM.Standard.E5.Flex` primeiro e, se precisar, tenta `VM.Standard.E6.Flex`.
 
-```json
-message.chat.id
+O app é leve. Para uma versão mais econômica, ele também pode rodar em A1 Always Free, mas este pacote prioriza E5/E6 porque costuma ter uma experiência de subida mais previsível.
+
+## O Que Fica Na OCI
+
+Quase tudo que importa fica dentro da sua OCI:
+
+- a VM onde o agente roda;
+- a rede da VM;
+- as regras de acesso;
+- a identidade usada para chamar o modelo;
+- o proxy local compatível com OpenAI;
+- o app escolhido, OpenClaw ou Hermes.
+
+A única parte pública é a URL que você usa para abrir o agente no navegador. O restante fica organizado dentro da sua tenancy.
+
+```mermaid
+flowchart TD
+    Pessoa["Pessoa no navegador"]
+    URL["URL do agente"]
+    VM["VM na sua tenancy OCI"]
+    Rede["Rede OCI"]
+    App["OpenClaw ou Hermes"]
+    Proxy["Proxy local OpenAI-compatible"]
+    IAM["Instance principal"]
+    Modelo["OCI Generative AI"]
+    Resposta["Resposta para a pessoa"]
+
+    Pessoa --> URL
+    URL --> VM
+    VM --> Rede
+    VM --> App
+    App --> Proxy
+    Proxy --> IAM
+    IAM --> Modelo
+    Modelo --> Resposta
 ```
-<img width="1258" height="158" alt="image" src="https://github.com/user-attachments/assets/85cef3de-c841-4886-b9dd-ff22d4cd0926" />
 
+Em termos práticos:
 
-6. Use esse valor em `telegram_chat_id`.
+- `Rede OCI` é a VCN, subnet e regras que permitem você acessar o agente.
+- `VM na sua tenancy OCI` é onde OpenClaw ou Hermes ficam rodando.
+- `Proxy local OpenAI-compatible` permite que o app fale com a OCI como se estivesse falando com uma API estilo OpenAI.
+- `Instance principal` evita colocar uma API key de modelo na stack.
+- `OCI Generative AI` é onde a chamada ao LLM acontece.
 
-## 3. Separar os 4 valores
+Para explicar de forma simples: a infraestrutura fica na sua OCI, e o modelo é consumido pelo OCI Generative AI com uma proposta de zero retenção para inferência. Segundo a documentação de tratamento de dados do serviço, prompts e respostas usados em inferência não são armazenados dentro do OCI Generative AI, e também não são compartilhados com provedores terceiros. Referência oficial: <https://docs.oracle.com/pt-br/iaas/Content/generative-ai/data-handling.htm>
+
+## Custo, Sem Complicar
+
+Pense no custo em três partes:
+
+| Parte | Como pensar |
+| --- | --- |
+| Rede | VCN, subnet, route table e security list não cobram por existir. Para esse teste, pense na rede base como grátis; tráfego de saída pode seguir regras de cobrança da OCI. |
+| VM | A VM paga por hora enquanto estiver ligada. Se desligar, para de consumir computação. O boot volume pode continuar existindo. |
+| LLM | O modelo paga por consumo, normalmente por tokens de entrada e saída. Usou mais, paga mais; usou menos, paga menos. |
+
+Resumo bem direto:
+
+- para testar pouco, o maior cuidado é a VM ligada;
+- para conversar bastante, o custo do LLM passa a importar;
+- para economia máxima, uma variação com A1 Always Free pode ser usada;
+- para uma subida mais tranquila, E5/E6 tende a ser mais confortável.
+
+## Variáveis Que Você Preenche
+
+Você precisa preencher só o essencial:
 
 ```text
-compartment_id     = ocid1.compartment.oc1....
-api_key            = sk-...
-telegram_bot_token = 123456789:ABC...
-telegram_chat_id   = 123456789
+tenancy_ocid   = ocid1.tenancy.oc1....
+compartment_id = ocid1.compartment.oc1....
+region         = sa-saopaulo-1
+app            = openclaw
 ```
-Buscar compartment_id no seu ambiente trial:
-<img width="1892" height="865" alt="image" src="https://github.com/user-attachments/assets/56b3f258-3ed2-4550-8161-92340f22c04a" />
 
-Criar uma API key no seu ambiente:
-<img width="2642" height="1021" alt="image" src="https://github.com/user-attachments/assets/0050854a-75e0-41b8-8c33-4e659ebc6e37" />
+Para subir Hermes:
 
-## 4. Criar a Stack na OCI
+```text
+app = hermes
+```
+
+Campos opcionais:
+
+- `ssh_public_key`: pode deixar vazio para a stack gerar uma chave.
+- `system_prompt`: o comportamento inicial do agente.
+- `boot_volume_size_in_gbs`: tamanho do disco.
+- `create_iam_policy`: deixe `true` para a stack criar as permissões necessárias.
+
+## Encontrar o Compartment
+
+Escolha onde os recursos vão morar dentro da sua OCI e copie o OCID do compartment.
+
+<img width="1892" height="865" alt="Buscar compartment_id no ambiente OCI" src="https://github.com/user-attachments/assets/56b3f258-3ed2-4550-8161-92340f22c04a" />
+
+## Criar a Stack
 
 1. Abra o OCI Console.
 2. Vá em `Developer Services`.
@@ -73,60 +120,63 @@ Criar uma API key no seu ambiente:
 4. Clique em `Stacks`.
 5. Clique em `Create Stack`.
 6. Escolha upload de `.zip`.
-7. Envie `novo-v6.zip`.
+7. Envie `openclaw-hermes-oci-principal-v14.zip`.
 8. Escolha o compartment.
 9. Dê um nome para a stack.
 
-<img width="1906" height="1020" alt="image" src="https://github.com/user-attachments/assets/ed8177d6-112e-470f-8662-229fdd768845" />
+<img width="1906" height="1020" alt="Criar stack no Resource Manager" src="https://github.com/user-attachments/assets/ed8177d6-112e-470f-8662-229fdd768845" />
 
-## 5. Preencher as variáveis
+## Rodar o Apply
 
-Preencha:
+Marque `Run apply` na criação da stack ou rode um Apply depois.
 
-- `compartment_id`
-- `api_key`
-- `telegram_bot_token`
-- `telegram_chat_id`
+<img width="1910" height="1035" alt="Rodar apply na stack" src="https://github.com/user-attachments/assets/7580d4a1-d47d-4916-b4a6-6dd3945f4b4e" />
 
-<img width="1897" height="1027" alt="image" src="https://github.com/user-attachments/assets/d3388305-0153-4d8e-8a48-4737982d5e4b" />
+Agora é só esperar. Normalmente leva em torno de 4 a 5 minutos.
 
-## 6. Rodar o Apply
+Esse tempo não é só a VM nascendo. A stack também espera:
 
-1. Ainda na Stack.
-2. Marque `Run apply`.
-3. E clique para criar.
+- o app terminar de instalar;
+- a URL local responder;
+- o modelo responder `OK`;
+- a página temporária sair;
+- o serviço final ficar ativo.
 
-<img width="1910" height="1035" alt="image" src="https://github.com/user-attachments/assets/7580d4a1-d47d-4916-b4a6-6dd3945f4b4e" />
+<img width="1050" height="311" alt="Apply em andamento" src="https://github.com/user-attachments/assets/8454a2be-821f-4ec0-a482-982e91f6c0f1" />
 
-Aguarde até a configuração completar, esse processo pode demorar em torno de 5 minutos para concluir:
-<img width="1050" height="311" alt="image" src="https://github.com/user-attachments/assets/8454a2be-821f-4ec0-a482-982e91f6c0f1" />
-<img width="1125" height="415" alt="image" src="https://github.com/user-attachments/assets/1897ecb2-2a81-4032-a879-b9132c77837b" />
+<img width="1125" height="415" alt="Apply concluido" src="https://github.com/user-attachments/assets/1897ecb2-2a81-4032-a879-b9132c77837b" />
 
-Recursos criados:
+Quando aparecer `Succeeded`, a experiência esperada é: abrir o output e usar.
 
-- `openclaw-standalone`
-- `openclaw-standalone-vcn`
-- `openclaw-standalone-public-subnet`
-- `openclaw-standalone-public-sl`
-- `openclaw-standalone-public-rt`
-- `openclaw-standalone-igw`
-- `tls_private_key.ssh`
+## Abrir o Agente
 
-## 7. Abrir a interface
+Na stack, vá em outputs e procure `chat_url`.
 
-URL base:
+<img width="1898" height="1020" alt="Outputs da stack com URL final" src="https://github.com/user-attachments/assets/b4f4576a-2971-47b7-81c5-72617aa67cac" />
+
+Se você escolheu OpenClaw, a URL vem assim:
 
 ```text
-http://IP_PUBLICO:18789
+http://IP_PUBLICO:18789/#token=TOKEN_GERADO
 ```
 
-Você encontra essas informações em output, assim que seu job estiver com status `Succeeded`:
-<img width="1898" height="1020" alt="image" src="https://github.com/user-attachments/assets/b4f4576a-2971-47b7-81c5-72617aa67cac" />
+O token no final é só para abrir o gateway do OpenClaw. Ele não é uma chave da OCI.
 
-## 8. Testar no Telegram
+Se você escolheu Hermes, a URL vem assim:
 
-1. Nesse momento o OpenClaw já deve enviar uma primeira mensagem para o seu chat no Telegram.
-2. Envie `oi`.
-3. Aguarde a resposta.
+```text
+http://IP_PUBLICO:9119
+```
 
-Agora você já pode utilizar seu agente 24/7 para trabalhar por você, criar rotinas e buscar na web diretamente do seu celular. Ele é capaz de desenvolver código e rodar no próprio ambiente em que foi configurado, então aproveite essa capacidade para criar o que você precisa com mais liberdade e `inteligência`.
+Abra no navegador e comece a conversar.
+
+## Por Que Essa Experiência É Boa
+
+- Você não entrega uma API key de modelo para a aplicação.
+- A VM chama o modelo com a própria identidade dentro da OCI.
+- A infraestrutura fica na sua tenancy.
+- O app fala com o modelo usando formato OpenAI-compatible.
+- O deploy só termina quando o agente está realmente pronto.
+- Você consegue testar, desligar, recriar ou trocar entre OpenClaw e Hermes com o mesmo padrão.
+
+No fim, a proposta é essa: uma forma simples de colocar um agente no ar, com a infraestrutura sob seu controle e sem transformar o primeiro deploy em uma caça a tokens e segredos.
