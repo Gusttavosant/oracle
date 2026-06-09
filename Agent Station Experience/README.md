@@ -13,7 +13,7 @@ Você sobe uma stack, escolhe `openclaw` ou `hermes`, espera alguns minutos e re
 Use este pacote:
 
 ```text
-openclaw-hermes-oci.zip
+openclaw-hermes-oci-principal-v14.zip
 ```
 
 Ele cria uma VM com `2 OCPU` e `16 GB` de RAM. A stack tenta usar `VM.Standard.E5.Flex` primeiro e, se precisar, tenta `VM.Standard.E6.Flex`.
@@ -27,46 +27,40 @@ Quase tudo que importa fica dentro da sua OCI:
 - a VM onde o agente roda;
 - a rede da VM;
 - as regras de acesso;
-- a identidade usada para chamar o modelo;
-- o proxy local compatível com OpenAI;
 - o app escolhido, OpenClaw ou Hermes.
+- o acesso ao modelo enterprise via OCI Generative AI.
 
-A única parte pública é a URL que você usa para abrir o agente no navegador. O restante fica organizado dentro da sua tenancy.
+A pessoa conversa por fora, usando a interface web. Se você quiser, depois também pode conectar canais como Telegram no app. O agente e o modelo ficam do lado da OCI.
 
 ```mermaid
 flowchart LR
-    Pessoa["Pessoa"]
-    Canal["Navegador ou canal externo"]
+    Web["Interface Web"]
+    Telegram["Telegram opcional"]
 
     subgraph OCI["OCI - sua tenancy"]
-        Rede["Rede OCI: VCN, subnet e regras"]
-        VM["VM do agente"]
-        App["OpenClaw ou Hermes"]
-        Proxy["Proxy local OpenAI-compatible"]
-        IAM["Instance principal sem API key"]
-        GenAI["OCI Generative AI OpenAI-compatible"]
+        subgraph VM["VM instance E5, E6 ou A1"]
+            App["Hermes ou OpenClaw"]
+        end
+        Model["Enterprise AI Model OpenAI-compatible"]
 
-        Rede --- VM
-        VM --- App
-        App --- Proxy
-        Proxy --- IAM
-        IAM --- GenAI
+        VM --> Model
     end
 
-    Pessoa --- Canal
-    Canal --> Rede
-    GenAI --> Proxy
+    Web --> VM
+    Telegram -.-> VM
 
     style OCI fill:#fff7f2,stroke:#c74634,stroke-width:2px
+    style VM fill:#ffffff,stroke:#111111,stroke-width:2px
+    style App fill:#f3f4f6,stroke:#111111,stroke-width:1px
+    style Model fill:#ffffff,stroke:#111111,stroke-width:2px
 ```
 
 Em termos práticos:
 
-- `Rede OCI` é a VCN, subnet e regras que permitem você acessar o agente.
-- `VM na sua tenancy OCI` é onde OpenClaw ou Hermes ficam rodando.
-- `Proxy local OpenAI-compatible` permite que o app fale com a OCI como se estivesse falando com uma API estilo OpenAI.
-- `Instance principal` evita colocar uma API key de modelo na stack.
-- `OCI Generative AI` é onde a chamada ao LLM acontece.
+- Fora da OCI fica a forma de interação: navegador e, se configurado depois, Telegram.
+- Dentro da OCI fica a VM com Hermes ou OpenClaw.
+- A VM conversa com o OCI Generative AI em formato OpenAI-compatible.
+- O modelo é enterprise, consumido sob demanda e com proposta de zero retenção para inferência.
 
 Para explicar de forma simples: a infraestrutura fica na sua OCI, e o modelo é consumido pelo OCI Generative AI com uma proposta de zero retenção para inferência. Segundo a documentação de tratamento de dados do serviço, prompts e respostas usados em inferência não são armazenados dentro do OCI Generative AI, e também não são compartilhados com provedores terceiros. Referência oficial: <https://docs.oracle.com/pt-br/iaas/Content/generative-ai/data-handling.htm>
 
