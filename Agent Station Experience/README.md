@@ -13,7 +13,7 @@ Você sobe uma stack, escolhe `openclaw` ou `hermes`, espera alguns minutos e re
 Use este pacote:
 
 ```text
-openclaw-hermes-oci-principal-v14.zip
+openclaw-hermes-oci.zip
 ```
 
 Ele cria uma VM com `2 OCPU` e `16 GB` de RAM. A stack tenta usar `VM.Standard.E5.Flex` primeiro e, se precisar, tenta `VM.Standard.E6.Flex`.
