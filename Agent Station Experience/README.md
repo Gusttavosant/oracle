@@ -13,7 +13,7 @@ Você sobe uma stack, escolhe `openclaw` ou `hermes`, espera alguns minutos e re
 Use este pacote:
 
 ```text
-openclaw-hermes-oci.zip
+openclaw-hermes-oci-principal-v14.zip
 ```
 
 Ele cria uma VM com `2 OCPU` e `16 GB` de RAM. A stack tenta usar `VM.Standard.E5.Flex` primeiro e, se precisar, tenta `VM.Standard.E6.Flex`.
@@ -35,10 +35,10 @@ A pessoa conversa por fora, usando a interface web. Se você quiser, depois tamb
 ```mermaid
 flowchart LR
     Web["Interface Web"]
-    Telegram["Telegram"]
+    Telegram["Telegram opcional"]
 
     subgraph OCI["OCI - sua tenancy"]
-        subgraph VM["VM instance E5"]
+        subgraph VM["VM instance E5, E6 ou A1"]
             App["Hermes ou OpenClaw"]
         end
         Model["Enterprise AI Model OpenAI-compatible"]
@@ -49,15 +49,10 @@ flowchart LR
     Web --> VM
     Telegram -.-> VM
 
-    class Web,Telegram purpleBox
-    classDef purpleBox fill:#e1d5e7,stroke:#9673a6,stroke-width:2px,color:#4527a0
-
-    style Telegram stroke-dasharray: 5 5,color:#4527a0
-
-    style OCI fill:#f3f4f6,stroke:#111111,stroke-width:2px,stroke-dasharray: 5 5,color:#000000
-    style VM fill:#f3f4f6,stroke:#111111,stroke-width:2px,color:#000000
-    style App fill:#f3f4f6,stroke:#111111,stroke-width:1px,color:#000000
-    style Model fill:#f3f4f6,stroke:#111111,stroke-width:2px,color:#000000
+    style OCI fill:#fff7f2,stroke:#c74634,stroke-width:2px
+    style VM fill:#ffffff,stroke:#111111,stroke-width:2px
+    style App fill:#f3f4f6,stroke:#111111,stroke-width:1px
+    style Model fill:#ffffff,stroke:#111111,stroke-width:2px
 ```
 
 Em termos práticos:
@@ -174,13 +169,60 @@ http://IP_PUBLICO:9119
 
 Abra no navegador e comece a conversar.
 
-## Por Que Essa Experiência É Boa
+## E Agora Que O Agente Está Pronto?
 
-- Você não entrega uma API key de modelo para a aplicação.
-- A VM chama o modelo com a própria identidade dentro da OCI.
-- A infraestrutura fica na sua tenancy.
-- O app fala com o modelo usando formato OpenAI-compatible.
-- O deploy só termina quando o agente está realmente pronto.
-- Você consegue testar, desligar, recriar ou trocar entre OpenClaw e Hermes com o mesmo padrão.
+Comece simples. Trate o agente como alguém que acabou de chegar no seu ambiente e pode te ajudar a organizar, investigar e construir coisas.
 
-No fim, a proposta é essa: uma forma simples de colocar um agente no ar, com a infraestrutura sob seu controle e sem transformar o primeiro deploy em uma caça a tokens e segredos.
+Algumas ideias de primeiros pedidos:
+
+- "Me explique o que existe nesta VM e quais comandos eu posso usar com segurança."
+- "Crie um resumo da arquitetura deste ambiente em linguagem simples."
+- "Me ajude a montar uma rotina diária de análise e me lembre do que eu preciso acompanhar."
+- "Pesquise na web sobre um tema e me traga um resumo com próximos passos."
+- "Crie um pequeno script para automatizar uma tarefa repetitiva."
+- "Leia os arquivos deste projeto e me diga como melhorar a documentação."
+- "Me ajude a conectar este agente ao Telegram usando um bot token."
+
+Você também pode pedir coisas mais abertas, como:
+
+```text
+Quero transformar este agente em um assistente pessoal de operações.
+Me faça perguntas para configurar isso do jeito certo.
+```
+
+Ou:
+
+```text
+Quero que você trabalhe comigo pelo Telegram.
+Me guie para criar o bot, receber o token e configurar o canal.
+```
+
+### Opcional: Conectar Com Telegram
+
+O Telegram não é obrigatório para subir a stack. A interface web já funciona logo depois do `Succeeded`.
+
+Mas, se você quiser conversar pelo celular, uma boa próxima etapa é criar um bot no Telegram e pedir para o próprio agente te ajudar a conectar esse canal.
+
+Para gerar o token:
+
+1. Abra o Telegram.
+2. Procure por `@BotFather`.
+3. Envie `/start`.
+4. Envie `/newbot`.
+5. Escolha o nome do bot.
+6. Escolha o username do bot.
+7. Copie o token retornado.
+8. Volte para o agente e peça para configurar o Telegram com esse token.
+
+<img width="1838" height="813" alt="Criar bot no Telegram com BotFather" src="https://github.com/user-attachments/assets/d9ec5059-155a-426b-8bc3-234d11618a4f" />
+
+Um exemplo de pedido para fazer ao agente:
+
+```text
+Configure um canal Telegram para este agente.
+Meu bot token é: COLE_AQUI_O_TOKEN
+Me diga também como testar se está respondendo corretamente.
+```
+
+Guarde esse token com cuidado. Ele dá acesso ao seu bot.
+
