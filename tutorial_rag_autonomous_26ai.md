@@ -470,3 +470,183 @@ prompt = build_rag_prompt("Qual é o SLA de P1?", hits)
 
 print(prompt)
 ```
+
+---
+
+# Complemento: Expor RAG como MCP nativo do Autonomous AI Database 26ai
+
+## MCP (Model Context Protocol)
+Referência: https://docs.oracle.com/pt-br/iaas/autonomous-database-serverless/doc/mcp-server.html  
+
+### 1. Habilitar MCP
+
+Na própria console da OCI, adicione uma tag que faz a permissão de uso do MCP no banco:
+
+Autonomous Database → Tags
+
+```
+Key: adb$feature
+Value: {"name":"mcp_server","enable":true}
+```
+
+---
+
+### 2. Usuário MCP
+
+Crie um usuário exclusivo para o MCP e dê acesso aos elementos necessários.
+
+```sql
+CREATE USER MCP_USER IDENTIFIED BY "senha";
+
+GRANT CREATE SESSION TO MCP_USER;
+
+GRANT EXECUTE ON retrieval_func TO MCP_USER;
+GRANT EXECUTE ON ingest_text TO MCP_USER;
+GRANT EXECUTE ON gen_embedding TO MCP_USER;
+
+GRANT SELECT ON kb_chunks TO MCP_USER;
+GRANT SELECT ON kb_documents TO MCP_USER;
+
+GRANT INSERT ON kb_chunks TO MCP_USER;
+GRANT INSERT ON kb_documents TO MCP_USER;
+
+GRANT EXECUTE ON DBMS_CLOUD_AI_AGENT TO MCP_USER;
+```
+
+---
+
+### 3. Crie as tools para o MCP
+
+Crie a ferramenta e aponte para a função que você deseja expor no MCP. 
+`Dica: Quanto melhor for a sua descrição, maior são as chances da sua ferramenta ser acionada nos momentos pertinentes.`
+
+#### 3.1 Tool de Retrieval
+
+```sql
+BEGIN
+  DBMS_CLOUD_AI_AGENT.CREATE_TOOL(
+    tool_name => 'search_kb',
+    description => 'Busca semântica',
+    implementation_type => 'PLSQL',
+    implementation_name => 'RETRIEVAL_FUNC'
+  );
+END;
+/
+```
+
+---
+
+#### 3.2 Tool de Ingestão
+
+```sql
+BEGIN
+  DBMS_CLOUD_AI_AGENT.CREATE_TOOL(
+    tool_name => 'ingest_document',
+    description => 'Ingestão com embedding',
+    implementation_type => 'PLSQL',
+    implementation_name => 'INGEST_TEXT'
+  );
+END;
+/
+```
+
+---
+
+### 4. Endpoint MCP
+Substitua no endpoint a `região`, exemplo `us-chicago-1`, e `database_ocid`, exemplo `ocid1.autonomousdatabase.oc1.us-chicago-1...`.
+
+```
+https://dataaccess.adb.<region>.oraclecloudapps.com/adb/mcp/v1/databases/<database_ocid>
+```
+
+---
+
+### 5. Endpoint do token para autenticação do MCP
+
+```bash
+curl -X POST \
+"https://dataaccess.adb.<region>.oraclecloudapps.com/adb/auth/v1/databases/<database_ocid>/token" \
+-H "Content-Type: application/json" \
+-d '{
+  "grant_type":"password",
+  "username":"MCP_USER",
+  "password":"senha"
+}'
+```
+
+---
+
+### 6. Exemplo de python (teste retrieval)
+
+```python
+import requests
+
+REGION = "sa-saopaulo-1"
+DB_OCID = "<database_ocid>"
+
+BASE = f"https://dataaccess.adb.{REGION}.oraclecloudapps.com"
+
+# token
+t = requests.post(
+    f"{BASE}/adb/auth/v1/databases/{DB_OCID}/token",
+    json={
+        "grant_type":"password",
+        "username":"MCP_USER",
+        "password":"senha"
+    }
+).json()["access_token"]
+
+headers = {
+    "Authorization": f"Bearer {t}",
+    "Content-Type": "application/json"
+}
+
+# list tools
+print(requests.post(
+    f"{BASE}/adb/mcp/v1/databases/{DB_OCID}",
+    headers=headers,
+    json={"jsonrpc":"2.0","id":1,"method":"tools/list"}
+).json())
+
+# call retrieval
+print(requests.post(
+    f"{BASE}/adb/mcp/v1/databases/{DB_OCID}",
+    headers=headers,
+    json={
+        "jsonrpc":"2.0",
+        "id":2,
+        "method":"tools/call",
+        "params":{
+            "name":"search_kb",
+            "arguments":{
+                "p_query":"Qual o SLA de P1?",
+                "top_k":3
+            }
+        }
+    }
+).json())
+```
+
+---
+
+### 7. Claude Code
+O MCP também pode ser conectado a ferramentas externas, como por exemplo, Claude Code. Para isso, basta adicionar a configuração do MCP na ferramenta e fazer a autenticação com o usuário de MCP criado anteriormente.
+
+Config MCP:
+
+```json
+{
+  "mcpServers": {
+    "oracle": {
+      "url": "https://dataaccess.adb.<region>.oraclecloudapps.com/adb/mcp/v1/databases/<database_ocid>"
+    }
+  }
+}
+```
+
+Login:
+
+```
+user: MCP_USER
+password: senha
+```
