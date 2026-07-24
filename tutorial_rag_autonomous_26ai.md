@@ -6,9 +6,8 @@ Tutorial para criar um pipeline de Knowledge Base no Autonomous AI Database 26ai
 
 ## 1. Objetivo
 
-```text
+
 Apresentar os comandos para criação de um fluxo simples de RAG para criar sua própria base de conhecimento utilizando o banco Autonomous 26ai. Os termos desse método não serão explicados nesse arquivo.
-```
 
 ---
 
