@@ -1,13 +1,7 @@
 # RAG com Autonomous AI Database 26ai
 
+## 1. Introdução
 Tutorial para criar um pipeline de Knowledge Base no Autonomous AI Database 26ai usando tabela com vetor, embeddings, ingestão, busca por similaridade e chamada via Python.
-
----
-
-## 1. Objetivo
-
-
-Apresentar os comandos para criação de um fluxo simples de RAG para criar sua própria base de conhecimento utilizando o banco Autonomous 26ai. Os termos desse método não serão explicados nesse arquivo.
 
 
 ## 2. Autorizações (se for admin, iniciar do passo 3)
