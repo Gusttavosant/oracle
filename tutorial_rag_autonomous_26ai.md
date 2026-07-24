@@ -9,7 +9,6 @@ Tutorial para criar um pipeline de Knowledge Base no Autonomous AI Database 26ai
 
 Apresentar os comandos para criação de um fluxo simples de RAG para criar sua própria base de conhecimento utilizando o banco Autonomous 26ai. Os termos desse método não serão explicados nesse arquivo.
 
----
 
 ## 2. Autorizações (se for admin, iniciar do passo 3)
 
@@ -31,7 +30,6 @@ GRANT EXECUTE ON DBMS_VECTOR_CHAIN TO kb_app;
 GRANT EXECUTE ON DBMS_VECTOR TO kb_app;
 ```
 
----
 
 ## 3. Conectando modelo de embedding
 
@@ -83,7 +81,6 @@ END;
 
 Se usar modelo ONNX dentro do banco com `provider: "database"`, não precisa de credential.
 
----
 
 ## 4. Criar tabelas da Knowledge Base
 
@@ -115,7 +112,6 @@ Se quiser fixar a dimensão do vetor:
 embedding VECTOR(1536, FLOAT32)
 ```
 
----
 
 ## 5. Função de embedding
 Substitua a região e modelo dada a disponibilidade do seu ambiente (referência: https://docs.oracle.com/en-us/iaas/Content/generative-ai/model-endpoint-regions.htm).
@@ -163,7 +159,6 @@ END;
 /
 ```
 
----
 
 ## 6. Procedure de ingestão
 
@@ -255,7 +250,6 @@ DISTANCE COSINE;
 
 Use a mesma métrica no índice e na query.
 
----
 
 ## 8. Função de busca por similaridade
 
@@ -290,7 +284,6 @@ END;
 /
 ```
 
----
 
 ## 9. Teste no SQL
 
@@ -324,7 +317,6 @@ END;
 PRINT rc;
 ```
 
----
 
 ## 10. Chamar ingestão no Python
 
@@ -363,7 +355,6 @@ def ingest_text(source_name: str, text: str, source_uri: str | None = None):
         conn.commit()
 ```
 
----
 
 ## 11. Chamar busca no Python
 
@@ -393,7 +384,6 @@ def semantic_search(question: str, top_k: int = 5) -> list[dict]:
             return [dict(zip(columns, row)) for row in rows_cursor]
 ```
 
----
 
 ## 12. Montar prompt RAG no Python
 
@@ -451,7 +441,6 @@ def answer_with_rag(question: str):
 - Filtre permissões antes de enviar contexto para o LLM.
 - Para PDF complexo, considere extrair texto no Python antes de enviar ao banco.
 
----
 
 ## 14. Fluxo final
 
@@ -477,7 +466,6 @@ print(prompt)
 ## MCP (Model Context Protocol)
 Referência: https://docs.oracle.com/pt-br/iaas/autonomous-database-serverless/doc/mcp-server.html  
 
----
 
 ### 1. Habilitar MCP
 
@@ -490,7 +478,6 @@ Key: adb$feature
 Value: {"name":"mcp_server","enable":true}
 ```
 
----
 
 ### 2. Usuário MCP
 
@@ -511,7 +498,6 @@ GRANT INSERT ON ADMIN.KB_CHUNKS TO MCP_USER;
 GRANT INSERT ON ADMIN.KB_DOCUMENTS TO MCP_USER;
 ```
 
----
 
 ### 3. Criar Tools MCP (executar como MCP_USER)
 
@@ -549,7 +535,6 @@ END;
 /
 ```
 
----
 
 ### 4. Endpoint MCP
 
@@ -557,7 +542,6 @@ END;
 https://dataaccess.adb.<region>.oraclecloudapps.com/adb/mcp/v1/databases/<database_ocid>
 ```
 
----
 
 ### 5. Token
 
@@ -572,7 +556,6 @@ curl -X POST \
 }'
 ```
 
----
 
 ### 6. Teste Python
 
@@ -617,7 +600,6 @@ print(requests.post(
 ).text)
 ```
 
----
 
 ### 7. Claude Desktop
 No Claude em settings, clique em Developer e `Edit config` para abrir e editar o arquivo de configuração json do claude desktop `claude_desktop_config`, como apresentado nas imagens abaixo.
@@ -655,7 +637,6 @@ Após o login você já consegue ver o conector e tools ligadas ao Claude na tel
 
 <img width="903" height="421" alt="image" src="https://github.com/user-attachments/assets/7bac5fea-4225-47ed-a735-3a2de442d89a" /> 
 
----
 
 ### 8. Teste
 
